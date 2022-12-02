@@ -23,7 +23,6 @@ fn task2(input: &str) -> i32 {
     let mut hi = [0, 0, 0];
 
     for i in input.lines() {
-        println!("{:?}", hi);
         if i == "" {
             if sum > hi[0] { 
                 hi[2] = hi[1];
