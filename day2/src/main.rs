@@ -4,7 +4,6 @@ fn task1(input: &str) -> i32 {
     let mut sum = 0;
     for i in input.lines() {
         if let Some((key, val)) = i.split_once(' ') {
-            //println!("{key} {val}");
             if key == "A" {
                 if val == "X" {sum += 1+3}
                 if val == "Y" {sum += 2+6}
@@ -29,7 +28,6 @@ fn task2(input: &str) -> i32 {
     let mut sum = 0;
     for i in input.lines() {
         if let Some((key, val)) = i.split_once(' ') {
-            //println!("{key} {val}");
             if key == "A" {
                 if val == "X" {sum += 3+0}
                 if val == "Y" {sum += 1+3}
