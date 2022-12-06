@@ -31,17 +31,22 @@ fn main() {
 #[cfg(test)]
 mod test {
     use super::{task1, task2};
-    use std::fs;
 
     #[test]
     fn test1() {
-        let test = fs::read_to_string("test").expect("Couldn't read file");
-        assert_eq!(task1(&test), 7);
+        assert_eq!(task1("mjqjpqmgbljsphdztnvjfqwrcgsmlb"), 7);
+        assert_eq!(task1("bvwbjplbgvbhsrlpgdmjqwftvncz"), 5);
+        assert_eq!(task1("nppdvjthqldpwncqszvftbrmjlhg"), 6);
+        assert_eq!(task1("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg"), 10);
+        assert_eq!(task1("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"), 11);
     }
 
     #[test]
     fn test2() {
-        let test = fs::read_to_string("test").expect("Couldn't read file");
-        assert_eq!(task2(&test), 19);
+        assert_eq!(task2("mjqjpqmgbljsphdztnvjfqwrcgsmlb"), 19);
+        assert_eq!(task2("bvwbjplbgvbhsrlpgdmjqwftvncz"), 23);
+        assert_eq!(task2("nppdvjthqldpwncqszvftbrmjlhg"), 23);
+        assert_eq!(task2("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg"), 29);
+        assert_eq!(task2("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"), 26);
     }
 }
