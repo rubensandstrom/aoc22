@@ -19,7 +19,6 @@ fn task1(input: &str, crates: Vec<Vec<char>>) -> String {
     return rv
 }
 
-
 fn task2(input: &str, crates: Vec<Vec<char>>) -> String {
     
     let mut crates = crates;
@@ -71,7 +70,7 @@ mod test {
             vec!('Z', 'N'),
             vec!('M', 'C', 'D'),
             vec!('P')
-                          );
+            );
         let test = fs::read_to_string("test").expect("Couldn't read file");
         assert_eq!(task1(&test, vec), "CMZ");
     }
