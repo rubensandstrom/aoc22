@@ -1,34 +1,29 @@
 use std::fs;
 
 fn sorted_filesystem(input: &str) -> Vec<i32> {
-    let mut filesystem: Vec<(&str, i32)> = vec!();
-    let mut directory = ("/", 0);
-    let mut temp = 0;
+    let mut filesystem: Vec<i32> = vec!();
+    let mut directory = 0;
     let mut result: Vec<i32> = vec!(); 
 
     for line in input.lines() {
         if line == "$ cd .." {
-            temp = directory.1;
-            directory = filesystem.pop().unwrap();
-            result.push(temp);
-            directory.1 += temp;
+            result.push(directory);
+            directory += filesystem.pop().unwrap();
         } else if &line[0..=3] == "$ cd" {
             filesystem.push(directory);
-            directory = (&line.split(" ").nth(2).unwrap(), 0);
+            directory = 0;
         } else {
             let memory: i32 = line.split(" ").nth(0).unwrap().parse().unwrap_or(0);
-            directory.1 += memory;
+            directory += memory;
         }
     }
 
     loop {
-        temp = directory.1;
         let a = filesystem.pop();
         match a {
             Some(dir) => { 
-                directory = dir;
-                result.push(temp);
-                directory.1 += temp; 
+                result.push(directory);
+                directory += dir;
             }
             None => { break; }
         }
@@ -50,12 +45,14 @@ fn task1(input: &str) -> i32 {
 }
 
 fn task2(input: &str) -> i32 {
-    let mut result = sorted_filesystem(input);
 
-    let max = result.pop().unwrap();
-    let req = 70_000_000 - max;
+    let result = sorted_filesystem(input);
+
+    let max = result.last().unwrap();
+    let req = 30_000_000 - (70_000_000 - max);
+
     for i in result {
-        if i >= 30_000_000 - req {
+        if i >= req {
             return i;
         }
     }
