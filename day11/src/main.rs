@@ -7,7 +7,6 @@ enum Op<'a> {
    ERROR,
 }
 
-// "item" in items was changed from i32 to Vec<i32> of what it is divisible by. 
 #[derive(Debug)]
 struct Monkey<'a> {
     items: Vec<i64>,
