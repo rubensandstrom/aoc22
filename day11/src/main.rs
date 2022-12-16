@@ -10,11 +10,11 @@ enum Op<'a> {
 // "item" in items was changed from i32 to Vec<i32> of what it is divisible by. 
 #[derive(Debug)]
 struct Monkey<'a> {
-    items: Vec<Vec<i32>>,
+    items: Vec<i64>,
     op: Op<'a>,
-    test: usize,
+    test: i64,
     cond: (usize, usize),
-    inspections: i32
+    inspections: i32,
 }
 
 fn make_monkey( info: &str ) -> Monkey {
@@ -22,10 +22,8 @@ fn make_monkey( info: &str ) -> Monkey {
     let mut info = info.split("\n").skip(1);
     let mut items = vec![];
     for i in info.next().unwrap().split(": ").nth(1).unwrap().split(", ") {
-        let mut item = vec![0; 30];
         let tmp = i.parse().unwrap(); 
-        div_by(&mut item, '+', tmp);
-        items.push(item);
+        items.push(tmp);
     }
     
     let (o, v) = info.next().unwrap().split("old ").nth(1).unwrap().split_once(' ').unwrap();
@@ -52,23 +50,7 @@ fn make_monkey( info: &str ) -> Monkey {
     }
 }
 
-fn div_by ( item: &mut Vec<i32>, operator: char, number: i32 ) {
-    for i in 1..item.len() {
-        match operator {
-            '+' => { item[i] = (item[i] + number) % i as i32; }
-            '*' => { item[i] = (item[i] * number) % i as i32; }
-            '/' => { if i as i32 == 0 { item[i] = 0; } else {} } // this part is broken.
-                                                                 
-            'o' => { item[i] = (item[i] * item[i]) % i as i32; } // it should probably not be
-                                                                 // prosumed that 'o' always comes
-                                                                 // as a multiplication.
-            _ => {}
-        }
-
-    }
-}
-
-fn round<'a>( monkeys: &'a mut Vec<Monkey>, task: u8) {
+fn round<'a>( monkeys: &'a mut Vec<Monkey>, task: u8, max_worry: i64) {
 
     for i in 0..monkeys.len() {
         if monkeys[i].items.len() < 1 { continue; }
@@ -77,12 +59,12 @@ fn round<'a>( monkeys: &'a mut Vec<Monkey>, task: u8) {
             let mut tmp = monkeys[i].items.remove(0);
             monkeys[i].inspections += 1;
             match monkeys[i].op {
-                Op::PLUS(a) => { if a == "old" {} else { div_by(&mut tmp, '+', a.parse::<i32>().unwrap()); } }
-                Op::TIMES(a) => { if a == "old" { div_by(&mut tmp, 'o', 0) } else { div_by(&mut tmp, '*', a.parse::<i32>().unwrap()); } }
+                Op::PLUS(a) => { if a == "old" { tmp = ( tmp + tmp ) % max_worry } else { tmp = ( tmp + a.parse::<i64>().unwrap()) % max_worry; } }
+                Op::TIMES(a) => { if a == "old" { tmp = ( tmp * tmp ) % max_worry } else { tmp = ( tmp * a.parse::<i64>().unwrap() ) % max_worry; } }
                 Op::ERROR => { eprintln!("error in round: match monkeys.op") }
             }
-            if task == 1 { div_by(&mut tmp, '/', 3) }
-            if tmp[monkeys[i].test] == 0 {
+            if task == 1 { tmp /= 3 }
+            if tmp % monkeys[i].test == 0 {
                 monkeys[cond.0].items.push(tmp);
             } else {
                 monkeys[cond.1].items.push(tmp)
@@ -91,7 +73,6 @@ fn round<'a>( monkeys: &'a mut Vec<Monkey>, task: u8) {
     }
 }
 
-// Task 1 was broken in the div by three step when i rewrote Monkey struct for task 2.
 fn task1(input: &str) -> i32 {
 
     let mut monkeys: Vec<Monkey> = vec![];
@@ -100,8 +81,13 @@ fn task1(input: &str) -> i32 {
         monkeys.push(make_monkey(&info))
     }
 
+    let mut max_worry = 1;
+    for m in &monkeys {
+        max_worry *= m.test;
+    }
+
     for _ in 0..20 {
-        round(&mut monkeys, 1)
+        round(&mut monkeys, 1, max_worry)
     }
 
     let mut first = 0;
@@ -125,8 +111,13 @@ fn task2(input: &str) -> i64 {
         monkeys.push(make_monkey(&info))
     }
 
+    let mut max_worry = 1;
+    for m in &monkeys {
+        max_worry *= m.test;
+    }
+
     for _ in 0..10000 {
-        round(&mut monkeys, 2)
+        round(&mut monkeys, 2, max_worry)
     }
 
     let mut first: i64 = 0;
