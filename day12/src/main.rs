@@ -29,24 +29,24 @@ fn parse ( input: &str ) -> (Vec<Vec<i32>>, Coord, Coord) {
     return (parsed_input, start, goal);
 }
 
-fn bfs ( input: Vec<Vec<i32>>, start: Coord, goal: Coord ) -> Vec<Coord> {
+fn bfs ( input: Vec<Vec<i32>>, start: Coord, goal: Coord ) -> i32 {
 
-    let mut visited: HashMap<Coord, Vec<Coord>> = HashMap::new();
+    let mut visited: HashMap<Coord, i32> = HashMap::new();
     let mut to_visit = vec![]; // might change to que if grows to big
 
-    visited.insert(start, vec![]);
+    visited.insert(start, 0);
     to_visit.push(start);
 
     while !to_visit.is_empty() {
         let (row, col) = to_visit.remove(0); 
-        let path = visited[&(row, col)].clone();
-        if (row, col) == goal { return path.clone(); }
+        let depth = visited[&(row, col)];
+        if (row, col) == goal { return depth; }
 
         if row > 0 {
             if !visited.contains_key(&(row-1, col)) {
                 if input[row-1][col] - input[row][col] <= 1 {
 
-                    visited.insert((row-1, col), [path.clone(), vec![(row-1, col)]].concat());
+                    visited.insert((row-1, col), depth+1);
                     to_visit.push((row-1, col));
                 }
             }
@@ -55,7 +55,7 @@ fn bfs ( input: Vec<Vec<i32>>, start: Coord, goal: Coord ) -> Vec<Coord> {
             if !visited.contains_key(&(row, col-1)) {
                 if input[row][col-1] - input[row][col] <= 1 {
 
-                    visited.insert((row, col-1), [path.clone(), vec![(row, col-1)]].concat());
+                    visited.insert((row, col-1), depth+1);
                     to_visit.push((row, col-1));
                 }
             }
@@ -64,7 +64,7 @@ fn bfs ( input: Vec<Vec<i32>>, start: Coord, goal: Coord ) -> Vec<Coord> {
             if !visited.contains_key(&(row+1, col)) {
                 if input[row+1][col] - input[row][col] <= 1 {
 
-                    visited.insert((row+1, col), [path.clone(), vec![(row+1, col)]].concat());
+                    visited.insert((row+1, col), depth+1);
                     to_visit.push((row+1, col));
                 }
             }
@@ -73,14 +73,14 @@ fn bfs ( input: Vec<Vec<i32>>, start: Coord, goal: Coord ) -> Vec<Coord> {
             if !visited.contains_key(&(row, col+1)) {
                 if input[row][col+1] - input[row][col] <= 1 {
 
-                    visited.insert((row, col+1), [path.clone(), vec![(row, col+1)]].concat());
+                    visited.insert((row, col+1), depth+1);
                     to_visit.push((row, col+1));
                 }
             }
         }
 
     }
-    return vec![];
+    return 0;
 }
 
 fn task1(input: &str) -> i32 {
@@ -88,7 +88,7 @@ fn task1(input: &str) -> i32 {
     let (input, start, goal) = parse(input);
     let path = bfs(input.clone(), start, goal);
 
-    return path.len() as i32;
+    return path;
 }
 fn task2(input: &str) -> i32 {
 
@@ -105,7 +105,7 @@ fn task2(input: &str) -> i32 {
 
     let mut routes = vec![];
     for a in lo {
-        let route = bfs(input.clone(), a, goal).len();
+        let route = bfs(input.clone(), a, goal);
         if route != 0 { routes.push(route); }
     }
 
