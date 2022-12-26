@@ -2,11 +2,10 @@ use std::{fs, collections::HashMap, usize};
 
 type Coord = (usize, usize);
 
-fn parse ( input: &str ) -> (Vec<Vec<i32>>, Coord, Coord) {
+fn parse ( input: &str ) -> (Vec<Vec<usize>>, Coord, Coord) {
 
     let mut start: Coord = (0, 0);
     let mut goal: Coord = (0, 0);
-    
 
     let mut parsed_input = vec![];
     for (row, l) in input.lines().enumerate() {
@@ -19,78 +18,60 @@ fn parse ( input: &str ) -> (Vec<Vec<i32>>, Coord, Coord) {
             }
             if c == 'E' { 
                 goal = (row, col); 
-                v.push('z' as i32 - 'a' as i32);
+                v.push('z' as usize - 'a' as usize);
                 continue;
             }
-            v.push(c as i32 - 'a' as i32);
+            v.push(c as usize - 'a' as usize);
         }
         parsed_input.push(v);
     }
     return (parsed_input, start, goal);
 }
 
-fn bfs ( input: Vec<Vec<i32>>, start: Coord, goal: Coord ) -> i32 {
+fn bfs( input: Vec<Vec<usize>>, start: Vec<Coord>, goal: Coord ) -> usize {
 
-    let mut visited: HashMap<Coord, i32> = HashMap::new();
-    let mut to_visit = vec![]; // might change to que if grows to big
+    let mut visited: HashMap<Coord, usize> = HashMap::new();
+    let mut to_visit = vec![];
 
-    visited.insert(start, 0);
-    to_visit.push(start);
+    for s in start {
+        visited.insert(s, 0);
+        to_visit.push(s);
+    }
 
-    while !to_visit.is_empty() {
-        let (row, col) = to_visit.remove(0); 
+    while !(to_visit.is_empty()) {
+        let (row, col) = to_visit.remove(0);
         let depth = visited[&(row, col)];
         if (row, col) == goal { return depth; }
 
-        if row > 0 {
-            if !visited.contains_key(&(row-1, col)) {
-                if input[row-1][col] - input[row][col] <= 1 {
+        for (d_row, d_col) in [(-1, 0), (0, -1), (1, 0), (0, 1)] {
+            let new_row = row as i32 + d_row;
+            let new_col = col as i32 + d_col;
 
-                    visited.insert((row-1, col), depth+1);
-                    to_visit.push((row-1, col));
+            if new_row < 0 || new_row > (input.len() as i32) - 1 ||
+                new_col < 0 || new_col > (input[0].len() as i32) - 1
+            { 
+                continue; 
+            }
+            if !visited.contains_key(&(new_row as usize, new_col as usize)) {
+                if input[new_row as usize][new_col as usize] as i32 - input[row][col] as i32  <= 1 {
+
+                    visited.insert((new_row as usize, new_col as usize), depth+1);
+                    to_visit.push((new_row as usize, new_col as usize));
                 }
             }
         }
-        if col > 0 {
-            if !visited.contains_key(&(row, col-1)) {
-                if input[row][col-1] - input[row][col] <= 1 {
-
-                    visited.insert((row, col-1), depth+1);
-                    to_visit.push((row, col-1));
-                }
-            }
-        }
-        if row < input.len()-1 {
-            if !visited.contains_key(&(row+1, col)) {
-                if input[row+1][col] - input[row][col] <= 1 {
-
-                    visited.insert((row+1, col), depth+1);
-                    to_visit.push((row+1, col));
-                }
-            }
-        }
-        if col < input[0].len()-1 {
-            if !visited.contains_key(&(row, col+1)) {
-                if input[row][col+1] - input[row][col] <= 1 {
-
-                    visited.insert((row, col+1), depth+1);
-                    to_visit.push((row, col+1));
-                }
-            }
-        }
-
     }
     return 0;
 }
 
-fn task1(input: &str) -> i32 {
+fn task1(input: &str) -> usize {
 
     let (input, start, goal) = parse(input);
-    let path = bfs(input.clone(), start, goal);
+    let path = bfs(input.clone(), vec![start], goal);
 
     return path;
 }
-fn task2(input: &str) -> i32 {
+fn task2(input: &str) -> usize {
 
     let (input, _start, goal) = parse(input);
     let mut lo = vec![];
@@ -103,14 +84,7 @@ fn task2(input: &str) -> i32 {
         }
     }
 
-    let mut routes = vec![];
-    for a in lo {
-        let route = bfs(input.clone(), a, goal);
-        if route != 0 { routes.push(route); }
-    }
-
-    routes.sort();
-    return routes[0] as i32;
+    return bfs(input, lo, goal);
 }
 
 fn main() {
